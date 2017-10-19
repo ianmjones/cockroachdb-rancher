@@ -1,49 +1,47 @@
-#!/bin/sh
+#!/bin/bash
 
 #
-# Get current container's "number" and name.
-NODE_CREATE_INDEX=`curl -s 'http://rancher-metadata/latest/self/container/create_index'`
+# Get current container's name.
 NODE_NAME=`curl -s 'http://rancher-metadata/latest/self/container/name'`
+echo "Node Name = ${NODE_NAME}."
 
 #
-# On start up we need to know whether we're the first or not.
-JOIN_STRING=""
-LEADER_CREATE_INDEX=${NODE_CREATE_INDEX}
-LEADER_NAME=${NODE_NAME}
+# Wait between 1 to 10 seconds in the hope that at least one container "wins" and becomes the leader when they all start at the same time.
+WAIT_TIME=$(( ( RANDOM % 10 )  + 1 ))
+echo "Waiting for ${WAIT_TIME} seconds before attempting to start..."
+sleep ${WAIT_TIME}
+echo "...starting up."
 
-echo "Node Name = ${NODE_NAME}."
+
+#
+# On start up we need to know whether we can join already running nodes.
+JOIN_STRING=""
+
 
 SIBLINGS=`curl -s 'http://rancher-metadata/latest/self/service/containers' | cut -d= -f1`
 for index in ${SIBLINGS}
 do
-	SIBLING_CREATE_INDEX=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/create_index"`
-#	SIBLING_STATE=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/state"`
+	SIBLING_NAME=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/name"`
+	SIBLING_STATE=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/state"`
 
-	echo "Sibling Create Index = ${SIBLING_CREATE_INDEX}."
-#	echo "Sibling State = ${SIBLING_STATE}."
+	echo "Sibling Name = ${SIBLING_NAME}."
+	echo "Sibling State = ${SIBLING_STATE}."
 
-#	if [ "${SIBLING_STATE}" = "running" -a ${SIBLING_CREATE_INDEX} -lt ${LEADER_CREATE_INDEX} ]
-	if [ ${SIBLING_CREATE_INDEX} -lt ${LEADER_CREATE_INDEX} ]
+	if [ "${SIBLING_STATE}" = "running" -a "${SIBLING_NAME}" != "${NODE_NAME}" ]
 	then
-		LEADER_CREATE_INDEX=${SIBLING_CREATE_INDEX}
-		LEADER_NAME=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/name"`
-
-		echo "New Leader Name = ${LEADER_NAME}."
+		JOIN_STRING="${JOIN_STRING} --join=${SIBLING_NAME}:26257"
 	fi
 done
 
-echo "Final Leader Name = ${LEADER_NAME}."
-
-if [ "${LEADER_NAME}" = "${NODE_NAME}" ]
+if [ -z "${JOIN_STRING}" ]
 then
-	echo "I'm the lead container."
+	echo "I'm the first container."
 else
-	JOIN_STRING="--join=${LEADER_NAME}:26257"
-	echo "I'm not the lead container, joining ${LEADER_NAME}."
+	echo "I'm not the first container, using join params: ${JOIN_STRING}."
 fi
 
 #
 # Start the node.
-exec /cockroach/cockroach start --insecure ${JOIN_STRING}
+exec /cockroach/cockroach start --insecure --store=/cockroach/cockroach-data/${NODE_NAME} ${JOIN_STRING}
 
 echo "Background cockroach process finished, shutting down node."
