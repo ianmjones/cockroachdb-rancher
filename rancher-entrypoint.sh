@@ -6,11 +6,11 @@ get_join_string() {
 	LEADER_CREATE_INDEX=${NODE_CREATE_INDEX}
 	LEADER_NAME=${NODE_NAME}
 
-	SIBLINGS=`curl -s 'http://rancher-metadata/latest/self/service/containers' | cut -d= -f1`
+	SIBLINGS=`curl -s 'http://rancher-metadata/2015-12-19/self/service/containers' | cut -d= -f1`
 	for index in ${SIBLINGS}
 	do
-		SIBLING_CREATE_INDEX=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/create_index"`
-		SIBLING_STATE=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/state"`
+		SIBLING_CREATE_INDEX=`curl -s "http://rancher-metadata/2015-12-19/self/service/containers/${index}/create_index"`
+		SIBLING_STATE=`curl -s "http://rancher-metadata/2015-12-19/self/service/containers/${index}/state"`
 
 		echo "Sibling Create Index = ${SIBLING_CREATE_INDEX}."
 		echo "Sibling State = ${SIBLING_STATE}."
@@ -18,7 +18,7 @@ get_join_string() {
 		if [ \( "${SIBLING_STATE}" = "running" -o "${SIBLING_STATE}" = "starting" \) -a ${SIBLING_CREATE_INDEX} -lt ${LEADER_CREATE_INDEX} ]
 		then
 			LEADER_CREATE_INDEX=${SIBLING_CREATE_INDEX}
-			LEADER_NAME=`curl -s "http://rancher-metadata/latest/self/service/containers/${index}/name"`
+			LEADER_NAME=`curl -s "http://rancher-metadata/2015-12-19/self/service/containers/${index}/name"`
 
 			echo "New Leader Name = ${LEADER_NAME}."
 		fi
@@ -38,8 +38,8 @@ get_join_string() {
 
 #
 # Get current container's "number" and name.
-NODE_CREATE_INDEX=`curl -s 'http://rancher-metadata/latest/self/container/create_index'`
-NODE_NAME=`curl -s 'http://rancher-metadata/latest/self/container/name'`
+NODE_CREATE_INDEX=`curl -s 'http://rancher-metadata/2015-12-19/self/container/create_index'`
+NODE_NAME=`curl -s 'http://rancher-metadata/2015-12-19/self/container/name'`
 echo "Node Name = ${NODE_NAME}."
 
 #
