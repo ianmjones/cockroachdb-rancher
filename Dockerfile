@@ -1,4 +1,4 @@
-FROM cockroachdb/cockroach:v1.1.1
+FROM cockroachdb/cockroach:v1.1.2
 
 MAINTAINER Byte Pixie <hello@bytepixie.com>
 
