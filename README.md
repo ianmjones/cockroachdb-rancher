@@ -2,7 +2,8 @@
 [![Docker Automated build](https://img.shields.io/docker/automated/bytepixie/cockroachdb-rancher.svg?maxAge=2592000)](https://github.com/bytepixie/cockroachdb-rancher/tree/master/) [![](https://images.microbadger.com/badges/image/bytepixie/cockroachdb-rancher.svg)](https://microbadger.com/images/bytepixie/cockroachdb-rancher "Get your own image badge on microbadger.com")
 
 ## Supported Tags and Respective Dockerfile Links
-* 1.1.4, 1.1, latest - [Dockerfile](https://github.com/bytepixie/cockroachdb-rancher/blob/master/Dockerfile)
+* 1.1.5, 1.1, latest - [Dockerfile](https://github.com/bytepixie/cockroachdb-rancher/blob/master/Dockerfile)
+* 1.1.4 - [Dockerfile](https://github.com/bytepixie/cockroachdb-rancher/blob/1.1.4/Dockerfile)
 * 1.1.3 - [Dockerfile](https://github.com/bytepixie/cockroachdb-rancher/blob/1.1.3/Dockerfile)
 * 1.1.2 - [Dockerfile](https://github.com/bytepixie/cockroachdb-rancher/blob/1.1.2/Dockerfile)
 * 1.1.1 - [Dockerfile](https://github.com/bytepixie/cockroachdb-rancher/blob/1.1.1/Dockerfile)
